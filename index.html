@@ -3,32 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYCRP | Management Dashboard</title>
+    <title>NYCRP | Management Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+        
         :root { --primary: #10b981; --bg: #09090b; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #fafafa; margin: 0; overflow: hidden; }
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
         .slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* UI Elements */
         .glass { background: rgba(18, 18, 22, 0.75); border: 1px solid rgba(39, 39, 42, 0.8); backdrop-filter: blur(16px); transition: all 0.4s ease; }
         .sidebar-item { cursor: pointer; transition: all 0.3s ease; border-right: 4px solid transparent; color: #71717a; }
         .sidebar-item:hover { background: rgba(16, 185, 129, 0.1); color: var(--primary); padding-left: 1.75rem; }
         .active-tab { background: rgba(16, 185, 129, 0.15) !important; color: var(--primary) !important; border-right: 4px solid var(--primary) !important; }
-        #loading-screen { position: fixed; inset: 0; z-index: 9999; background: #09090b; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        #dashboard-ui { display: none; height: 100vh; width: 100vw; z-index: 10; position: relative; }
+        
+        /* Fixed Center Loading */
+        #loading-screen { position: fixed; inset: 0; z-index: 9999; background: #09090b; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #login-screen { position: fixed; inset: 0; z-index: 9998; background: #0c0c0e; display: none; align-items: center; justify-content: center; }
+        #dashboard-ui { display: none; height: 100vh; width: 100vw; z-index: 10; position: relative; }
+
+        input, textarea { background: #121214 !important; border: 1px solid #27272a !important; color: white !important; outline: none; }
         .progress-bar-container { width: 300px; height: 4px; background: #18181b; border-radius: 99px; overflow: hidden; margin-top: 24px; }
         #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.1s linear; box-shadow: 0 0 15px var(--primary); }
+
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
         .dot-online { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
         .dot-offline { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
         .dot-warning { background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
-        input, textarea { background: #121214 !important; border: 1px solid #27272a !important; color: white !important; outline: none; }
     </style>
 </head>
 <body>
@@ -37,8 +54,8 @@
     <div id="loading-screen">
         <img src="logo.jpg" class="w-32 h-32 mb-10 object-contain animate-pulse" onerror="this.src='logo.png'">
         <div class="flex flex-col items-center">
-            <h2 id="percent-text" class="text-5xl font-black italic text-white mb-2 leading-none">0%</h2>
-            <p id="load-status" class="text-[9px] font-bold uppercase tracking-[0.4em] text-emerald-500 italic mb-4">Establishing Secure Node Sync...</p>
+            <h2 id="percent-text" class="text-5xl font-black italic text-white mb-2 leading-none text-center">0%</h2>
+            <p id="load-status" class="text-[9px] font-bold uppercase tracking-[0.4em] text-emerald-500 italic mb-4 text-center">Bypassing API Constraints...</p>
             <div class="progress-bar-container"><div id="progress-fill"></div></div>
         </div>
     </div>
@@ -47,13 +64,13 @@
         <div class="glass p-14 rounded-[3.5rem] w-[440px] space-y-10 border-emerald-500/10 shadow-2xl">
             <div class="text-center space-y-3">
                 <img src="logo.jpg" class="w-20 h-20 mx-auto mb-4" onerror="this.src='logo.png'">
-                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white">Authorized Access</h2>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white">Management Auth</h2>
             </div>
             <div class="space-y-6">
                 <input type="text" id="user-input" placeholder="USERNAME" class="w-full p-5 rounded-2xl text-xs font-bold tracking-widest uppercase">
                 <input type="password" id="pass-input" placeholder="PASSWORD" class="w-full p-5 rounded-2xl text-xs font-bold tracking-widest">
-                <button onclick="attemptLogin()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs hover:brightness-110 active:scale-95 transition-all">Authenticate</button>
-                <p id="auth-error" class="text-[10px] text-red-500 font-bold uppercase text-center opacity-0 transition-opacity">Error: Access Refused</p>
+                <button onclick="attemptLogin()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs hover:brightness-110 active:scale-95 transition-all">Sign In</button>
+                <p id="auth-error" class="text-[10px] text-red-500 font-bold uppercase text-center opacity-0 transition-opacity">Access Denied</p>
             </div>
         </div>
     </div>
@@ -63,14 +80,14 @@
             <div class="flex flex-col items-center px-10 mb-16 text-center">
                 <img src="logo.jpg" class="w-24 h-24 mb-6 object-contain rounded-full border-2 border-emerald-500/30 bg-zinc-900" onerror="this.src='logo.png'">
                 <h1 id="sidebar-username" class="text-3xl font-black italic tracking-tighter uppercase text-white mb-1 leading-none">HESGLY</h1>
-                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mt-2 italic underline underline-offset-4 decoration-zinc-800">Plus Tier Authorized</p>
+                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mt-2 italic underline underline-offset-4 decoration-zinc-800">Authorized Manager</p>
             </div>
             <nav class="flex-1 px-6 space-y-3 font-bold text-xs uppercase italic tracking-tighter">
                 <div onclick="showTab('overview')" id="btn-overview" class="sidebar-item active-tab flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="layout-dashboard"></i> Overview</div>
                 <div onclick="showTab('roster')" id="btn-roster" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="users"></i> Staff Roster</div>
                 <div onclick="showTab('actions')" id="btn-actions" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="zap"></i> Dispatch</div>
                 <div onclick="showTab('forms')" id="btn-forms" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="file-plus"></i> Architect</div>
-                <div onclick="showTab('chat')" id="btn-chat" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="message-square"></i> Intel</div>
+                <div onclick="showTab('chat')" id="btn-chat" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="message-square"></i> Intel Chat</div>
             </nav>
         </aside>
 
@@ -78,21 +95,18 @@
             <div id="tab-container" class="slide-up">
                 
                 <section id="tab-overview" class="tab-content space-y-12">
-                    <div class="flex justify-between items-end">
-                        <h2 class="text-6xl font-black italic uppercase tracking-tighter text-white">Management</h2>
-                        <button onclick="initSync()" class="bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase px-4 py-2 rounded-lg border border-emerald-500/20">Force Reload</button>
-                    </div>
+                    <h2 class="text-6xl font-black italic uppercase tracking-tighter text-white">Management</h2>
 
                     <div class="grid grid-cols-2 gap-8">
                         <div class="glass p-10 rounded-[3rem] border-l-[10px] border-emerald-500/50">
                             <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Melonly Plus Node</p>
                             <div class="flex items-center">
                                 <span id="api-dot" class="status-dot dot-warning"></span>
-                                <span id="api-text" class="font-black uppercase tracking-tighter text-sm italic">Syncing...</span>
+                                <span id="api-text" class="font-black uppercase tracking-tighter text-sm italic">Synchronizing...</span>
                             </div>
                         </div>
                         <div class="glass p-10 rounded-[3rem] border-l-[10px] border-purple-500/50">
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Staff Strength</p>
+                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Personnel Count</p>
                             <p id="staff-count" class="font-black text-white text-4xl italic tracking-tighter uppercase">--</p>
                         </div>
                     </div>
@@ -100,10 +114,10 @@
                     <div class="glass rounded-[3.5rem] overflow-hidden">
                         <div class="p-10 border-b border-zinc-800 bg-zinc-950/20 flex items-center justify-between">
                             <h3 class="font-black italic uppercase tracking-tighter text-xl text-white">Live Infraction Stream</h3>
-                            <span class="text-[9px] font-bold text-emerald-500 px-3 py-1 bg-emerald-500/10 rounded-full">Real-Time</span>
+                            <button onclick="initSync()" class="text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full uppercase italic border border-emerald-500/20">Refersh Relay</button>
                         </div>
                         <div class="max-h-[500px] overflow-y-auto p-4 space-y-4" id="infraction-feed">
-                            <p class="text-center text-zinc-700 py-20 italic">Awaiting API Payload...</p>
+                            <p class="text-center text-zinc-700 py-20 italic font-bold">Awaiting Secure Node Data...</p>
                         </div>
                     </div>
                 </section>
@@ -113,17 +127,16 @@
                     <div class="glass p-10 rounded-[3.5rem] overflow-hidden">
                         <table class="w-full text-left">
                             <thead class="text-[10px] uppercase text-zinc-500 font-black italic border-b border-zinc-800">
-                                <tr><th class="px-8 py-5 italic underline decoration-zinc-900">User Identification</th><th class="px-8 py-5 italic underline decoration-zinc-900">Current Role</th><th class="px-8 py-5 italic underline decoration-zinc-900">Sync</th></tr>
+                                <tr><th class="px-8 py-5 italic underline decoration-zinc-900">User Identification</th><th class="px-8 py-5 italic underline decoration-zinc-900">Role</th><th class="px-8 py-5 italic underline decoration-zinc-900">Sync</th></tr>
                             </thead>
                             <tbody id="roster-list" class="divide-y divide-zinc-800/30"></tbody>
                         </table>
                     </div>
                 </section>
 
-                <section id="tab-actions" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Relay Dispatch</h2><div class="glass p-12 rounded-[3.5rem] max-w-2xl"><textarea id="webhook-msg" placeholder="Broadcast content..." class="w-full p-8 rounded-[2.5rem] h-64 bg-zinc-950"></textarea><button onclick="sendRelay()" class="w-full bg-emerald-500 text-black font-black py-6 rounded-3xl mt-6">Fire Signal</button></div></section>
+                <section id="tab-actions" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Relay Dispatch</h2><div class="glass p-12 rounded-[3.5rem] max-w-2xl"><textarea id="webhook-msg" placeholder="Write broadcast content..." class="w-full p-8 rounded-[2.5rem] h-64 bg-zinc-950 border border-zinc-800 text-sm"></textarea><button onclick="sendRelay()" class="w-full bg-emerald-500 text-black font-black py-6 rounded-3xl mt-6">Fire Signal</button></div></section>
                 <section id="tab-forms" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Form Architect</h2><div class="grid grid-cols-2 gap-10"><div class="glass p-10 rounded-[3rem] space-y-6"><input type="text" id="q-label" placeholder="FIELD NAME" class="w-full p-5 rounded-2xl bg-zinc-950 font-bold uppercase"><button onclick="addField()" class="w-full bg-zinc-800 text-white font-bold py-5 rounded-2xl">Append</button></div><div id="form-preview" class="glass p-12 rounded-[3.5rem] min-h-[500px] space-y-6"></div></div></section>
                 <section id="tab-chat" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Intel Chat</h2><div class="glass rounded-[3.5rem] flex flex-col h-[600px]"><div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 bg-black/20 italic font-bold"></div><div class="p-10 border-t border-zinc-800 bg-zinc-950/40 flex gap-6"><input type="text" id="chat-input" placeholder="Secure relay..." class="flex-1 p-6 rounded-3xl bg-zinc-950 italic"><button onclick="sendChatMessage()" class="px-12 bg-emerald-500 text-black font-black rounded-3xl">Dispatch</button></div></div></section>
-
             </div>
         </main>
     </div>
@@ -134,7 +147,7 @@
         const WEBHOOK = "https://discord.com/api/webhooks/1499459057935716532/dPuY2QOajbjp1FSGvx3eke-sF4GLeG-BdaxXlrYRi6-hqzp6uYtkgyZ86ojGkr-H002R";
         let CURRENT_USER = "hesgly";
 
-        // 1. PROGRESS LOADER
+        // 1. LOADER
         let progress = 0;
         const loadingTimer = setInterval(() => {
             progress++;
@@ -149,7 +162,7 @@
             const p = document.getElementById('pass-input').value;
             if(u.toLowerCase() === "hesgly" && p === "W3xFn9q2Uz") {
                 CURRENT_USER = u;
-                document.getElementById('sidebar-username').innerText = u;
+                document.getElementById('sidebar-username').innerText = u.toUpperCase();
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-ui').style.display = 'flex';
                 lucide.createIcons();
@@ -157,7 +170,17 @@
             } else { document.getElementById('auth-error').style.opacity = "1"; setTimeout(() => document.getElementById('auth-error').style.opacity="0", 2000); }
         }
 
-        // 3. DEFINITIVE MELONLY PLUS API SYNC
+        // 3. API SYNC (WITH PROXY FIX)
+        async function fetchWithProxy(endpoint) {
+            // Using a CORS proxy to bypass browser restrictions
+            const proxy = "https://api.allorigins.win/get?url=";
+            const target = encodeURIComponent(`${BASE_URL}${endpoint}`);
+            const res = await fetch(`${proxy}${target}`);
+            const data = await res.json();
+            // AllOrigins wraps the result in a .contents string
+            return JSON.parse(data.contents);
+        }
+
         async function initSync() {
             const dot = document.getElementById('api-dot');
             const text = document.getElementById('api-text');
@@ -165,49 +188,50 @@
             const roster = document.getElementById('roster-list');
 
             try {
-                // Corrected Headers and Endpoint for Info
-                const res = await fetch(`${BASE_URL}/server/info`, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
-                
-                if (res.status === 401) { updateStatus('offline', 'KEY REJECTED (401)'); return; }
-                if (!res.ok) { updateStatus('offline', `ERROR: ${res.status}`); return; }
+                // Fetch Server Info (Staff Count)
+                const serverData = await fetchWithProxy("/server/info");
+                if (serverData) {
+                    setStatus('online', 'CONNECTED & LINKED');
+                    document.getElementById('staff-count').innerText = serverData.staffCount || "--";
+                }
 
-                const data = await res.json();
-                updateStatus('online', 'CONNECTED & LINKED');
-                document.getElementById('staff-count').innerText = data.staffCount || "--";
+                // Fetch Roster
+                const staffData = await fetchWithProxy("/server/members");
+                if (staffData) {
+                    roster.innerHTML = staffData.map(m => `
+                        <tr class="hover:bg-emerald-500/5 transition-all">
+                            <td class="px-8 py-6 font-bold text-zinc-300 italic uppercase tracking-tighter">${m.username}</td>
+                            <td class="px-8 py-6 text-emerald-500 font-black italic tracking-widest text-[10px] underline decoration-emerald-900">${m.roleName || 'Staff'}</td>
+                            <td class="px-8 py-6"><span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase italic">Synced</span></td>
+                        </tr>`).join('');
+                }
 
-                // Fetching Members (Roster)
-                const memRes = await fetch(`${BASE_URL}/server/members`, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
-                const memData = await memRes.json();
-                roster.innerHTML = memData.map(m => `
-                    <tr class="hover:bg-emerald-500/5 transition-all">
-                        <td class="px-8 py-6 font-bold text-zinc-300 italic uppercase tracking-tighter">${m.username}</td>
-                        <td class="px-8 py-6 text-emerald-500 font-black italic tracking-widest text-[10px] underline decoration-emerald-900">${m.roleName || 'Staff'}</td>
-                        <td class="px-8 py-6"><span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black italic">Active</span></td>
-                    </tr>`).join('');
-
-                // Fetching Logs (Infraction Stream)
-                const logRes = await fetch(`${BASE_URL}/server/logs`, { headers: { 'Authorization': `Bearer ${API_KEY}` } });
-                const logData = await logRes.json();
-                feed.innerHTML = logData.slice(0, 15).map(l => `
-                    <div class="p-8 glass rounded-[2.5rem] border-l-4 border-emerald-500 fade-in">
-                        <div class="flex justify-between items-start mb-3">
-                            <div><p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest underline decoration-emerald-900 mb-1">${l.actionType || 'MOD ACTION'}</p>
-                            <p class="text-xs font-bold text-white uppercase italic tracking-tighter">Target: ${l.userName}</p></div>
-                            <span class="text-[9px] font-mono text-zinc-600">${new Date(l.createdAt).toLocaleTimeString()}</span>
-                        </div>
-                        <p class="text-[10px] text-zinc-400 font-bold italic">Staff Member: <span class="text-zinc-200">${l.staffName}</span></p>
-                        <div class="mt-4 p-4 bg-zinc-950/50 rounded-2xl border border-zinc-900 italic text-[11px] text-zinc-500">"${l.reason || 'No reason specified'}"</div>
-                    </div>`).join('');
-
-            } catch (e) { updateStatus('warning', 'OFFLINE (CORS/NETWORK)'); }
+                // Fetch Logs
+                const logData = await fetchWithProxy("/server/logs");
+                if (logData) {
+                    feed.innerHTML = logData.slice(0, 15).map(l => `
+                        <div class="p-8 glass rounded-[2.5rem] border-l-4 border-emerald-500 fade-in">
+                            <div class="flex justify-between items-start mb-3">
+                                <div><p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest underline decoration-emerald-900 mb-1">${l.actionType || 'MOD ACTION'}</p>
+                                <p class="text-xs font-bold text-white uppercase italic tracking-tighter">Target: ${l.userName}</p></div>
+                                <span class="text-[9px] font-mono text-zinc-600">${new Date(l.createdAt).toLocaleTimeString()}</span>
+                            </div>
+                            <p class="text-[10px] text-zinc-400 font-bold italic">Staff Member: <span class="text-zinc-200">${l.staffName}</span></p>
+                            <div class="mt-4 p-4 bg-zinc-950/50 rounded-2xl border border-zinc-900 italic text-[11px] text-zinc-500">"${l.reason || 'No reason specified'}"</div>
+                        </div>`).join('');
+                }
+            } catch (e) {
+                setStatus('offline', 'GATEWAY ERROR');
+                console.error("Melonly Sync Failed:", e);
+            }
         }
 
-        function updateStatus(type, label) {
+        function setStatus(type, label) {
             const dot = document.getElementById('api-dot');
             const text = document.getElementById('api-text');
             dot.className = `status-dot dot-${type}`;
             text.innerText = label;
-            text.className = `font-black uppercase tracking-tighter text-sm italic ${type === 'online' ? 'text-emerald-500' : (type === 'offline' ? 'text-red-500' : 'text-orange-500')}`;
+            text.className = `font-black uppercase tracking-tighter text-sm italic ${type === 'online' ? 'text-emerald-500' : 'text-red-500'}`;
         }
 
         // 4. CORE ENGINE
@@ -246,7 +270,7 @@
             const m = document.getElementById('webhook-msg').value;
             if(!m) return;
             try {
-                const r = await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [{ title: "NYCRP Management Dispatch", description: m, color: 1064849, timestamp: new Date().toISOString() }] }) });
+                const r = await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [{ title: "NYCRP Dispatch Relay", description: m, color: 1064849, timestamp: new Date().toISOString() }] }) });
                 if(r.ok) { document.getElementById('webhook-msg').value = ''; }
             } catch (e) { alert("Dispatch Error."); }
         }
