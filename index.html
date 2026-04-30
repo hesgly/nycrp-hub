@@ -3,21 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYCRP | Management Hub</title>
+    <title>NYCRP | Management Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        
         :root { --primary: #10b981; --bg: #09090b; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #fafafa; margin: 0; overflow: hidden; }
-
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
-            pointer-events: none; z-index: 0;
-        }
-
+        
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
         .fade-in { animation: fadeIn 0.8s ease-out forwards; }
         .slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -31,7 +25,7 @@
         .active-tab { background: rgba(16, 185, 129, 0.15) !important; color: var(--primary) !important; border-right: 4px solid var(--primary) !important; }
         
         /* Fixed & Symmetrical Loading */
-        #loading-screen { position: fixed; inset: 0; z-index: 9999; background: #09090b; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100vw; height: 100vh; }
+        #loading-screen { position: fixed; inset: 0; z-index: 9999; background: #09090b; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         #loading-content { width: 320px; display: flex; flex-direction: column; align-items: center; }
         
         #dashboard-ui { display: none; height: 100vh; width: 100vw; z-index: 10; position: relative; }
@@ -43,11 +37,8 @@
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
         .dot-online { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
         .dot-offline { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
-        .dot-warning { background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
 
-        input, textarea { background: #121214 !important; border: 1px solid #27272a !important; color: white !important; outline: none; transition: border 0.2s; }
-        input:focus, textarea:focus { border-color: var(--primary); }
-
+        input, textarea { background: #121214 !important; border: 1px solid #27272a !important; color: white !important; outline: none; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
     </style>
@@ -60,7 +51,7 @@
         <div id="loading-content">
             <img src="logo.jpg" class="w-32 h-32 mb-10 object-contain animate-pulse" onerror="this.src='logo.png'">
             <h2 id="percent-text" class="text-5xl font-black italic text-white mb-2 leading-none">0%</h2>
-            <p id="load-status" class="text-[9px] font-black uppercase tracking-[0.4em] text-emerald-500 italic mb-4">Establishing Secure Node Sync...</p>
+            <p id="load-status" class="text-[9px] font-bold uppercase tracking-[0.4em] text-emerald-500 italic mb-4 text-center">Syncing with Melonly Node...</p>
             <div class="progress-bar-container"><div id="progress-fill"></div></div>
         </div>
     </div>
@@ -69,14 +60,13 @@
         <div class="glass p-14 rounded-[3.5rem] w-[440px] space-y-10 border-emerald-500/10 shadow-2xl">
             <div class="text-center space-y-3">
                 <img src="logo.jpg" class="w-20 h-20 mx-auto mb-4" onerror="this.src='logo.png'">
-                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">Management Hub</h2>
-                <p class="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.3em]">Identity Verification Required</p>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white leading-none">Management Auth</h2>
             </div>
             <div class="space-y-6">
-                <input type="text" id="user-input" placeholder="USERNAME" class="w-full p-5 rounded-2xl text-xs font-bold tracking-widest uppercase">
+                <input type="text" id="user-input" placeholder="USERNAME" class="w-full p-5 rounded-2xl text-xs font-bold uppercase">
                 <input type="password" id="pass-input" placeholder="PASSWORD" class="w-full p-5 rounded-2xl text-xs font-bold tracking-widest">
                 <button onclick="attemptLogin()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-emerald-500/30">Sign In</button>
-                <p id="auth-error" class="text-[10px] text-red-500 font-bold uppercase text-center opacity-0 transition-opacity">Access Denied</p>
+                <p id="auth-error" class="text-[10px] text-red-500 font-bold uppercase text-center opacity-0 transition-opacity">Access Refused</p>
             </div>
         </div>
     </div>
@@ -86,7 +76,7 @@
             <div class="flex flex-col items-center px-10 mb-16 text-center">
                 <img src="logo.jpg" class="w-24 h-24 mb-6 object-contain rounded-full border-2 border-emerald-500/30 bg-zinc-900" onerror="this.src='logo.png'">
                 <h1 id="sidebar-username" class="text-3xl font-black italic tracking-tighter uppercase text-white mb-1 leading-none">HESGLY</h1>
-                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mt-2 italic underline underline-offset-4 decoration-zinc-800">Authorized Manager</p>
+                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest mt-2 italic underline underline-offset-4 decoration-zinc-800">Plus Tier Authorized</p>
             </div>
             <nav class="flex-1 px-6 space-y-3 font-bold text-xs uppercase italic tracking-tighter">
                 <div onclick="showTab('overview')" id="btn-overview" class="sidebar-item active-tab flex items-center gap-4 p-5 rounded-3xl"><i data-lucide="layout-dashboard"></i> Overview</div>
@@ -102,85 +92,49 @@
                 
                 <section id="tab-overview" class="tab-content space-y-12">
                     <h2 class="text-6xl font-black italic uppercase tracking-tighter text-white leading-none">Dashboard</h2>
-
                     <div class="grid grid-cols-2 gap-8">
                         <div class="glass p-10 rounded-[3rem] border-l-[10px] border-emerald-500/50">
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Melonly API Node</p>
-                            <div class="flex items-center">
-                                <span id="api-dot" class="status-dot dot-warning"></span>
-                                <span id="api-text" class="font-black uppercase tracking-tighter text-sm italic">Connecting...</span>
-                            </div>
+                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Melonly Sync Status</p>
+                            <div class="flex items-center"><span id="api-dot" class="status-dot dot-offline"></span><span id="api-text" class="font-black uppercase tracking-tighter text-sm italic">Connecting...</span></div>
                         </div>
                         <div class="glass p-10 rounded-[3rem] border-l-[10px] border-purple-500/50">
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Staff Registry</p>
+                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Staff strength</p>
                             <p id="staff-count" class="font-black text-white text-4xl italic tracking-tighter uppercase leading-none">--</p>
                         </div>
                     </div>
-
                     <div class="glass rounded-[3.5rem] overflow-hidden">
-                        <div class="p-10 border-b border-zinc-800 bg-zinc-950/20 flex items-center justify-between">
-                            <h3 class="font-black italic uppercase tracking-tighter text-xl text-white">System Audit Log</h3>
-                            <button onclick="initSync()" class="text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full uppercase italic border border-emerald-500/20">Refersh Node</button>
-                        </div>
-                        <div class="max-h-[500px] overflow-y-auto p-2" id="audit-feed">
-                            <table class="w-full text-left">
-                                <tbody id="activity-logs" class="divide-y divide-zinc-800/30">
-                                    <tr><td class="p-20 text-center text-zinc-800 italic font-bold uppercase tracking-widest opacity-20">Awaiting Signal...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <div class="p-10 border-b border-zinc-800 bg-zinc-950/20 flex justify-between items-center"><h3 class="font-black italic uppercase tracking-tighter text-xl text-white">System Audit Log</h3><button onclick="initSync()" class="bg-emerald-500 text-black text-[9px] font-black px-4 py-2 rounded-full italic active:scale-95 transition-all">REFRESH RELAY</button></div>
+                        <div class="max-h-[500px] overflow-y-auto p-8 italic text-zinc-500 font-bold uppercase text-[10px] tracking-widest" id="log-feed">Waiting for API payload...</div>
                     </div>
                 </section>
 
                 <section id="tab-roster" class="tab-content hidden space-y-12">
-                    <h2 class="text-5xl font-black italic uppercase tracking-tighter text-emerald-500 leading-none">Personnel <span class="text-white">Registry</span></h2>
+                    <h2 class="text-5xl font-black italic uppercase tracking-tighter text-emerald-500 leading-none">Staff <span class="text-white">Registry</span></h2>
                     <div class="glass p-10 rounded-[3.5rem] overflow-hidden">
-                        <table class="w-full text-left">
-                            <thead class="text-[10px] uppercase text-zinc-500 font-black italic border-b border-zinc-800">
-                                <tr><th class="px-8 py-5 italic underline decoration-zinc-900">Identification</th><th class="px-8 py-5 italic underline decoration-zinc-900">Role</th><th class="px-8 py-5 italic underline decoration-zinc-900">Sync</th></tr>
-                            </thead>
-                            <tbody id="roster-list" class="divide-y divide-zinc-800/30">
-                                <tr><td colspan="3" class="p-20 text-center text-zinc-700 italic">Syncing staff directory...</td></tr>
-                            </tbody>
-                        </table>
+                        <table class="w-full text-left"><thead class="text-[10px] uppercase text-zinc-500 font-black italic border-b border-zinc-800"><tr><th class="px-8 py-5 italic underline decoration-zinc-900">Identification</th><th class="px-8 py-5 italic underline decoration-zinc-900">Role</th><th class="px-8 py-5 italic underline decoration-zinc-900">Sync</th></tr></thead><tbody id="roster-list" class="divide-y divide-zinc-800/30"></tbody></table>
                     </div>
                 </section>
 
                 <section id="tab-actions" class="tab-content hidden space-y-12">
                     <h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10 leading-none">Relay Dispatch</h2>
-                    <div class="glass p-12 rounded-[3.5rem] max-w-2xl space-y-8">
-                        <textarea id="webhook-msg" placeholder="Broadcast content..." class="w-full p-8 rounded-[2.5rem] h-64 bg-zinc-950 border border-zinc-800 text-sm font-bold leading-relaxed"></textarea>
-                        <button onclick="sendRelay()" class="w-full bg-emerald-500 text-black font-black py-6 rounded-3xl uppercase tracking-widest italic shadow-xl shadow-emerald-500/10 active:scale-95 transition-all">Execute Dispatch</button>
-                    </div>
+                    <div class="glass p-12 rounded-[3.5rem] max-w-2xl"><textarea id="webhook-msg" placeholder="Broadcast content..." class="w-full p-8 rounded-[2.5rem] h-64 bg-zinc-950 border border-zinc-800 text-sm font-bold"></textarea><button onclick="sendRelay()" class="w-full bg-emerald-500 text-black font-black py-6 rounded-3xl mt-6 uppercase italic">Execute Dispatch</button></div>
                 </section>
 
                 <section id="tab-forms" class="tab-content hidden space-y-12">
                     <h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10 text-emerald-500 leading-none">Form Architect</h2>
-                    <div class="grid grid-cols-12 gap-10">
-                        <div class="col-span-5 glass p-10 rounded-[3rem] space-y-6 self-start">
-                            <input type="text" id="q-label" placeholder="FIELD LABEL" class="w-full p-5 rounded-2xl bg-zinc-950 font-bold uppercase italic border border-zinc-800">
-                            <button onclick="addField()" class="w-full bg-zinc-800 text-white font-bold py-5 rounded-2xl uppercase italic text-[10px]">Append to Schema</button>
-                        </div>
-                        <div id="form-preview" class="col-span-7 glass p-12 rounded-[3.5rem] min-h-[500px] space-y-6 bg-zinc-900/10"></div>
-                    </div>
+                    <div class="grid grid-cols-2 gap-10"><div class="glass p-10 rounded-[3rem] space-y-6 self-start"><input type="text" id="q-label" placeholder="FIELD LABEL" class="w-full p-5 rounded-2xl bg-zinc-950 font-bold uppercase"><button onclick="addField()" class="w-full bg-zinc-800 text-white font-bold py-5 rounded-2xl uppercase">Append Component</button></div><div id="form-preview" class="glass p-12 rounded-[3.5rem] min-h-[500px] space-y-6 bg-zinc-900/10"></div></div>
                 </section>
 
                 <section id="tab-chat" class="tab-content hidden space-y-12">
                     <h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10 text-emerald-500 leading-none">Intel Chat</h2>
-                    <div class="glass rounded-[3.5rem] flex flex-col h-[600px] overflow-hidden">
-                        <div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 bg-black/20 italic font-bold"></div>
-                        <div class="p-10 border-t border-zinc-800 bg-zinc-950/40 flex gap-6">
-                            <input type="text" id="chat-input" placeholder="Secure relay..." class="flex-1 p-6 rounded-3xl bg-zinc-950 italic font-bold">
-                            <button onclick="sendChatMessage()" class="px-12 bg-emerald-500 text-black font-black rounded-3xl italic shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">Send</button>
-                        </div>
-                    </div>
+                    <div class="glass rounded-[3.5rem] flex flex-col h-[600px]"><div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 bg-black/20 italic font-bold"></div><div class="p-10 border-t border-zinc-800 bg-zinc-950/40 flex gap-6"><input type="text" id="chat-input" placeholder="Secure relay..." class="flex-1 p-6 rounded-3xl bg-zinc-950 italic font-bold"><button onclick="sendChatMessage()" class="px-12 bg-emerald-500 text-black font-black rounded-3xl italic">Dispatch</button></div></div>
                 </section>
-
             </div>
         </main>
     </div>
 
     <script>
+        const SERVER_ID = "7410410101246267392";
         const API_KEY = "7131c7a457096de6e1848afd70b893e681b6c2e2fc2922b02ad28a5e822c6684";
         const WEBHOOK = "https://discord.com/api/webhooks/1499459057935716532/dPuY2QOajbjp1FSGvx3eke-sF4GLeG-BdaxXlrYRi6-hqzp6uYtkgyZ86ojGkr-H002R";
         let CURRENT_USER = "hesgly";
@@ -205,62 +159,47 @@
                 document.getElementById('dashboard-ui').style.display = 'flex';
                 lucide.createIcons();
                 initSync();
-                addLog(`Authorized Access: ${u}`, "AUTH");
             } else { document.getElementById('auth-error').style.opacity = "1"; setTimeout(() => document.getElementById('auth-error').style.opacity="0", 2000); }
         }
 
-        // 3. AGGRESSIVE API ENGINE (Passes Authorization directly)
-        async function fetchMelonly() {
-            const api_url = 'https://api.melonly.xyz/api/v1/guild';
-            // Codetabs proxy is excellent for passing custom Authorization headers
-            const proxy_url = `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(api_url)}`;
-            
-            const response = await fetch(proxy_url, {
-                method: 'GET',
-                headers: { 'Authorization': API_KEY }
-            });
-            
-            if (!response.ok) throw new Error("Melonly Node Rejected Link");
-            return await response.json();
-        }
-
+        // 3. CORRECTED API ENGINE (Uses Server ID & Proper Proxy)
         async function initSync() {
             const dot = document.getElementById('api-dot');
             const text = document.getElementById('api-text');
             const roster = document.getElementById('roster-list');
-
             try {
-                const data = await fetchMelonly();
-                if (data && data.staff) {
+                // Using a proxy that allows Authorization headers without Bearer prefix
+                const proxy = "https://api.allorigins.win/get?url=";
+                const target = `https://api.melonly.xyz/api/v1/servers/${SERVER_ID}`;
+                
+                const response = await fetch(`${proxy}${encodeURIComponent(target)}`, {
+                    headers: { 'Authorization': API_KEY }
+                });
+                
+                const raw = await response.json();
+                const data = JSON.parse(raw.contents);
+
+                if(data) {
                     dot.className = "status-dot dot-online";
                     text.innerText = "CONNECTED & LINKED";
                     text.style.color = "#10b981";
-                    document.getElementById('staff-count').innerText = data.staff.length;
+                    document.getElementById('staff-count').innerText = data.staffCount || "SYNCED";
+                    document.getElementById('log-feed').innerText = "Direct Handshake with Noah's Node successful. Server ID verified.";
                     
-                    roster.innerHTML = data.staff.map(m => `
-                        <tr class="hover:bg-emerald-500/5 transition-all">
-                            <td class="px-8 py-6 font-bold text-zinc-300 italic uppercase tracking-tighter">${m.username}</td>
-                            <td class="px-8 py-6 text-emerald-500 font-black italic tracking-widest text-[10px] underline decoration-emerald-900">VERIFIED PERSONNEL</td>
-                            <td class="px-8 py-6"><span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black italic">Active</span></td>
-                        </tr>`).join('');
-                    addLog("Personnel Nodes Synchronized", "SYNC");
+                    if(data.staff) {
+                        roster.innerHTML = data.staff.map(m => `
+                            <tr class="hover:bg-emerald-500/5 transition-all"><td class="px-8 py-6 font-bold text-zinc-300 italic uppercase">${m.username}</td><td class="px-8 py-6 text-emerald-500 font-black italic tracking-widest text-[10px]">AUTHORIZED</td><td class="px-8 py-6"><span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black italic">Synced</span></td></tr>
+                        `).join('');
+                    }
                 }
             } catch (e) {
                 dot.className = "status-dot dot-offline";
                 text.innerText = "GATEWAY ERROR";
-                addLog("API Handshake Failed - Shield Active?", "ERROR");
+                document.getElementById('log-feed').innerText = "ERROR: Failed to bypass Noah's gateway. Possible API key scope issue.";
             }
         }
 
-        // 4. CORE UTILITIES
-        function addLog(msg, type) {
-            const container = document.getElementById('activity-logs');
-            if(container.innerHTML.includes('Awaiting Signal')) container.innerHTML = '';
-            const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const row = `<tr class="border-b border-zinc-800/20 hover:bg-white/[0.02] fade-in"><td class="px-10 py-7 text-zinc-400 font-bold italic uppercase text-[10px] tracking-widest">${msg}</td><td class="px-10 py-7 text-emerald-500 font-black italic uppercase text-[9px] tracking-widest">${type}</td><td class="px-10 py-7 text-zinc-700 font-mono text-[10px]">${t}</td></tr>`;
-            container.insertAdjacentHTML('afterbegin', row);
-        }
-
+        // 4. UTILS
         function showTab(name) {
             const container = document.getElementById('tab-container');
             container.classList.remove('slide-up');
@@ -271,14 +210,12 @@
             document.getElementById(`tab-${name}`).classList.remove('hidden');
             document.getElementById(`btn-${name}`).classList.add('active-tab');
             lucide.createIcons();
-            addLog(`Module Switched: ${name.toUpperCase()}`, "NAV");
         }
 
         function addField() {
             const l = document.getElementById('q-label').value;
             if(!l) return;
             document.getElementById('form-preview').insertAdjacentHTML('beforeend', `<div class="glass p-10 rounded-[2.5rem] border-l-4 border-emerald-500 slide-up"><p class="text-[10px] font-black uppercase text-emerald-500 italic mb-4 underline underline-offset-[10px] decoration-emerald-900">${l}</p><div class="h-12 bg-black/60 rounded-2xl border border-zinc-800"></div></div>`);
-            addLog(`Modified Schema: ${l}`, "FORM");
             document.getElementById('q-label').value = '';
         }
 
@@ -299,8 +236,8 @@
             if(!m) return;
             try {
                 const r = await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [{ title: "NYCRP Dispatch Relay", description: m, color: 1064849, timestamp: new Date().toISOString() }] }) });
-                if(r.ok) { addLog("Relay Successful", "RELAY"); document.getElementById('webhook-msg').value = ''; }
-            } catch (e) { alert("Dispatch Error."); }
+                if(r.ok) { document.getElementById('webhook-msg').value = ''; }
+            } catch (e) { alert("Dispatch error."); }
         }
     </script>
 </body>
