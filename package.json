@@ -1,0 +1,7 @@
+{
+  "name": "nycrp-management-hub",
+  "version": "1.0.0",
+  "dependencies": {
+    "@melonly-moderation/api-client": "^1.0.6"
+  }
+}
