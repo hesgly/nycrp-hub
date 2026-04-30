@@ -8,80 +8,52 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        
         :root { --primary: #10b981; --bg: #09090b; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #fafafa; margin: 0; overflow: hidden; }
-
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
-            pointer-events: none; z-index: 0; animation: moveGlow 15s infinite alternate;
-        }
-        @keyframes moveGlow { 0% { transform: translate(-10%, -10%); } 100% { transform: translate(10%, 10%); } }
-        
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 50%); pointer-events: none; z-index: 0; }
         .slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
         .glass { background: rgba(18, 18, 22, 0.75); border: 1px solid rgba(39, 39, 42, 0.8); backdrop-filter: blur(16px); transition: all 0.4s ease; }
-        .glass:hover { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 30px rgba(16, 185, 129, 0.08); }
-        
         .sidebar-item { cursor: pointer; transition: all 0.3s ease; border-right: 4px solid transparent; color: #71717a; }
         .sidebar-item:hover { background: rgba(16, 185, 129, 0.1); color: var(--primary); padding-left: 1.75rem; }
         .active-tab { background: rgba(16, 185, 129, 0.15) !important; color: var(--primary) !important; border-right: 4px solid var(--primary) !important; }
-        
-        /* Fixed Center Loading */
-        #loading-screen { position: fixed; inset: 0; z-index: 9999; background: #09090b; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        #loading-screen { position: fixed; inset: 0; z-index: 9999; background: #09090b; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #login-screen { position: fixed; inset: 0; z-index: 9998; background: #0c0c0e; display: none; align-items: center; justify-content: center; }
         #dashboard-ui { display: none; height: 100vh; width: 100vw; z-index: 10; position: relative; }
-
         input, textarea { background: #121214 !important; border: 1px solid #27272a !important; color: white !important; outline: none; }
-        
-        .progress-bar-container { width: 300px; height: 4px; background: #18181b; border-radius: 99px; overflow: hidden; margin: 24px auto 0 auto; position: relative; }
-        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.1s linear; box-shadow: 0 0 15px var(--primary); }
-
-        .chat-msg { animation: chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes chatPop { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
+        .progress-bar-container { width: 300px; height: 4px; background: #18181b; border-radius: 99px; overflow: hidden; margin-top: 24px; }
+        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.1s linear; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
         .dot-online { background-color: #10b981; box-shadow: 0 0 10px #10b981; }
         .dot-offline { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; }
         .dot-warning { background-color: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
     </style>
 </head>
 <body>
-
     <div class="bg-glow"></div>
 
     <div id="loading-screen">
-        <div class="mb-10 slide-up flex flex-col items-center">
-            <img src="logo.jpg" alt="NYCRP" id="loading-logo" class="w-32 h-32 object-contain animate-pulse" onerror="this.src='logo.png'">
-        </div>
-        <div class="slide-up flex flex-col items-center" style="animation-delay: 0.2s">
-            <h2 id="percent-text" class="text-5xl font-black italic text-white mb-2 leading-none">0%</h2>
-            <p id="load-status" class="text-[9px] font-bold uppercase tracking-[0.5em] text-emerald-500 italic mb-4">Establishing Secure Connection...</p>
-            <div class="progress-bar-container">
-                <div id="progress-fill"></div>
-            </div>
+        <img src="logo.jpg" class="w-32 h-32 mb-10 object-contain animate-pulse" onerror="this.src='logo.png'">
+        <div class="text-center">
+            <h2 id="percent-text" class="text-5xl font-black italic text-white mb-2">0%</h2>
+            <p id="load-status" class="text-[9px] font-bold uppercase tracking-[0.5em] text-emerald-500 italic mb-4">Initializing Management Environment...</p>
+            <div class="progress-bar-container"><div id="progress-fill"></div></div>
         </div>
     </div>
 
     <div id="login-screen">
-        <div class="glass p-14 rounded-[3.5rem] w-[440px] space-y-10 border-emerald-500/10 shadow-2xl fade-in">
+        <div class="glass p-14 rounded-[3.5rem] w-[440px] space-y-10 border-emerald-500/10 shadow-2xl">
             <div class="text-center space-y-3">
                 <img src="logo.jpg" class="w-20 h-20 mx-auto mb-4" onerror="this.src='logo.png'">
-                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white">Management Auth</h2>
-                <p class="text-zinc-600 text-[10px] font-bold uppercase tracking-[0.3em]">Credentials Verification</p>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white">Authorized Access</h2>
             </div>
             <div class="space-y-6">
                 <input type="text" id="user-input" placeholder="USERNAME" class="w-full p-5 rounded-2xl text-xs font-bold tracking-widest uppercase">
                 <input type="password" id="pass-input" placeholder="PASSWORD" class="w-full p-5 rounded-2xl text-xs font-bold tracking-widest">
-                <button onclick="attemptLogin()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs shadow-lg shadow-emerald-500/30">Authorize</button>
-                <p id="auth-error" class="text-[10px] text-red-500 font-bold uppercase text-center opacity-0 transition-opacity">Access Denied</p>
+                <button onclick="attemptLogin()" class="w-full bg-emerald-500 text-black font-black py-5 rounded-2xl uppercase tracking-widest text-xs hover:brightness-110 active:scale-95 transition-all">Verify Personnel</button>
+                <p id="auth-error" class="text-[10px] text-red-500 font-bold uppercase text-center opacity-0">Access Denied</p>
             </div>
         </div>
     </div>
@@ -89,132 +61,61 @@
     <div id="dashboard-ui">
         <aside class="w-80 border-r border-zinc-800 flex flex-col py-12 bg-[#09090b] relative z-50">
             <div class="flex flex-col items-center px-10 mb-16 text-center">
-                <div class="w-28 h-28 mb-6 relative group">
-                    <div class="absolute inset-0 bg-emerald-500/20 rounded-full blur-2xl"></div>
-                    <img src="logo.jpg" class="w-full h-full object-contain rounded-full border-2 border-emerald-500/30 relative z-10 bg-zinc-900" onerror="this.src='logo.png'">
-                </div>
+                <img src="logo.jpg" class="w-24 h-24 mb-6 object-contain rounded-full border-2 border-emerald-500/30 bg-zinc-900" onerror="this.src='logo.png'">
                 <h1 id="sidebar-username" class="text-3xl font-black italic tracking-tighter uppercase text-white mb-1">USER</h1>
-                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                    <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">NYCRP Manager</p>
-                </div>
+                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Management Level 4</p>
             </div>
-
             <nav class="flex-1 px-6 space-y-3">
-                <div onclick="showTab('overview')" id="btn-overview" class="sidebar-item active-tab flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic tracking-tighter">
-                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Overview
-                </div>
-                <div onclick="showTab('performance')" id="btn-performance" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic tracking-tighter">
-                    <i data-lucide="line-chart" class="w-4 h-4"></i> Performance
-                </div>
-                <div onclick="showTab('actions')" id="btn-actions" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic tracking-tighter">
-                    <i data-lucide="zap" class="w-4 h-4"></i> Custom Actions
-                </div>
-                <div onclick="showTab('forms')" id="btn-forms" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic tracking-tighter">
-                    <i data-lucide="file-plus" class="w-4 h-4"></i> Form Builder
-                </div>
-                <div onclick="showTab('chat')" id="btn-chat" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic tracking-tighter">
-                    <i data-lucide="message-square" class="w-4 h-4"></i> Intel Chat
-                </div>
+                <div onclick="showTab('overview')" id="btn-overview" class="sidebar-item active-tab flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic"><i data-lucide="layout-dashboard"></i> Overview</div>
+                <div onclick="showTab('actions')" id="btn-actions" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic"><i data-lucide="zap"></i> Actions</div>
+                <div onclick="showTab('forms')" id="btn-forms" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic"><i data-lucide="file-plus"></i> Builder</div>
+                <div onclick="showTab('chat')" id="btn-chat" class="sidebar-item flex items-center gap-4 p-5 rounded-3xl font-bold text-xs uppercase italic"><i data-lucide="message-square"></i> Intel</div>
             </nav>
         </aside>
 
-        <main class="flex-1 overflow-y-auto bg-transparent p-16 relative">
+        <main class="flex-1 overflow-y-auto p-16 relative">
             <div id="tab-container" class="slide-up">
-                
                 <section id="tab-overview" class="tab-content space-y-12">
-                    <div class="space-y-2">
-                        <h2 class="text-6xl font-black italic uppercase tracking-tighter">Dashboard</h2>
-                        <p class="text-zinc-500 font-bold uppercase text-[10px] tracking-[0.4em]">Manager Identity: <span id="header-username" class="text-emerald-500">USER</span></p>
+                    <div class="flex justify-between items-end">
+                        <h2 class="text-6xl font-black italic uppercase tracking-tighter">Overview</h2>
+                        <button onclick="initSync()" class="bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase px-4 py-2 rounded-lg border border-emerald-500/20 hover:bg-emerald-500/20 transition-all">Force API Refresh</button>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-8">
+                    <div class="grid grid-cols-2 gap-8">
                         <div class="glass p-10 rounded-[3rem] border-l-[10px] border-emerald-500/50">
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Melonly API Gateway</p>
+                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Melonly API Status</p>
                             <div class="flex items-center">
                                 <span id="api-dot" class="status-dot dot-warning"></span>
                                 <span id="api-text" class="font-black uppercase tracking-tighter text-sm italic">Synchronizing...</span>
                             </div>
                         </div>
                         <div class="glass p-10 rounded-[3rem] border-l-[10px] border-purple-500/50">
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Staff Count</p>
+                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Total Staff</p>
                             <p id="staff-count" class="font-black text-white text-4xl italic tracking-tighter uppercase">--</p>
-                        </div>
-                        <div class="glass p-10 rounded-[3rem] border-l-[10px] border-blue-500/50">
-                            <p class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">System Load</p>
-                            <p id="sys-load" class="font-black text-white text-4xl italic tracking-tighter uppercase">4%</p>
                         </div>
                     </div>
 
                     <div class="glass rounded-[3.5rem] overflow-hidden">
-                        <div class="p-10 border-b border-zinc-800 bg-zinc-950/20 flex items-center gap-4">
-                            <i data-lucide="history" class="w-5 h-5 text-emerald-500"></i>
-                            <h3 class="font-black italic uppercase tracking-tighter text-xl text-white">Dashboard Session Logs</h3>
+                        <div class="p-10 border-b border-zinc-800 bg-zinc-950/20 flex items-center justify-between">
+                            <div class="flex items-center gap-4 text-emerald-500">
+                                <i data-lucide="terminal"></i>
+                                <h3 class="font-black italic uppercase tracking-tighter text-xl">System Output Logs</h3>
+                            </div>
+                            <span class="text-[9px] font-bold text-zinc-600 uppercase">Live Stream</span>
                         </div>
-                        <div class="max-h-[300px] overflow-y-auto">
+                        <div class="max-h-[350px] overflow-y-auto">
                             <table class="w-full text-left">
                                 <tbody id="activity-logs" class="divide-y divide-zinc-800/40">
-                                    <tr><td class="p-20 text-center text-zinc-800 italic font-bold uppercase tracking-widest">Establishing Secure Stream...</td></tr>
+                                    <tr><td class="p-20 text-center text-zinc-800 italic font-bold uppercase tracking-widest">Establishing secure stream...</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </section>
 
-                <section id="tab-performance" class="tab-content hidden space-y-12">
-                    <h2 class="text-5xl font-black italic uppercase tracking-tighter text-emerald-500">Staff <span class="text-white">Analysis</span></h2>
-                    <div class="glass p-10 rounded-[3rem]">
-                        <table class="w-full text-left">
-                            <thead class="text-[10px] uppercase text-zinc-500 font-bold border-b border-zinc-800">
-                                <tr>
-                                    <th class="px-8 py-5 italic underline underline-offset-8">User Identification</th>
-                                    <th class="px-8 py-5 italic underline underline-offset-8">Weekly Metrics</th>
-                                    <th class="px-8 py-5 italic underline underline-offset-8">Global Points</th>
-                                    <th class="px-8 py-5 italic underline underline-offset-8">Relay Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="metrics-list" class="divide-y divide-zinc-800/30">
-                                <tr><td colspan="4" class="p-20 text-center text-zinc-700 italic">Connecting to Plus API...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <section id="tab-actions" class="tab-content hidden space-y-12">
-                    <h2 class="text-5xl font-black italic uppercase tracking-tighter">Relay <span class="text-emerald-500">Dispatch</span></h2>
-                    <div class="glass p-12 rounded-[3.5rem] max-w-2xl space-y-8">
-                        <textarea id="webhook-msg" placeholder="Write broadcast content..." class="w-full p-8 rounded-[2.5rem] h-64 bg-zinc-950 border border-zinc-800 text-sm italic font-bold"></textarea>
-                        <button onclick="sendRelay()" class="w-full bg-emerald-500 text-black font-black py-6 rounded-3xl uppercase tracking-widest text-[11px] italic transition-all hover:scale-[1.02] shadow-lg shadow-emerald-500/20">Execute Relay</button>
-                    </div>
-                </section>
-
-                <section id="tab-forms" class="tab-content hidden space-y-12">
-                    <h2 class="text-5xl font-black italic uppercase tracking-tighter text-emerald-500">Form Architect</h2>
-                    <div class="grid grid-cols-12 gap-10">
-                        <div class="col-span-5 glass p-10 rounded-[3rem] space-y-6 self-start">
-                            <input type="text" id="q-label" placeholder="COMPONENT LABEL" class="w-full p-5 rounded-2xl text-xs bg-zinc-950 font-bold uppercase italic border border-zinc-800">
-                            <button onclick="addField()" class="w-full bg-zinc-800 text-white font-bold py-5 rounded-2xl uppercase tracking-widest text-[10px] hover:bg-zinc-700 transition-all">Append Field</button>
-                        </div>
-                        <div id="form-preview" class="col-span-7 glass p-12 rounded-[3.5rem] min-h-[500px] space-y-6"></div>
-                    </div>
-                </section>
-
-                <section id="tab-chat" class="tab-content hidden space-y-12">
-                    <h2 class="text-5xl font-black italic uppercase tracking-tighter text-emerald-500">Intel Chat</h2>
-                    <div class="glass rounded-[3.5rem] overflow-hidden flex flex-col h-[600px] border-t-4 border-t-emerald-500/20">
-                        <div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 bg-black/20 italic">
-                            <div class="flex flex-col items-center justify-center h-full text-zinc-800 opacity-20">
-                                <i data-lucide="shield-check" class="w-16 h-16 mb-4"></i>
-                                <p class="font-black italic uppercase tracking-widest">Secured Management Line</p>
-                            </div>
-                        </div>
-                        <div class="p-10 border-t border-zinc-800 bg-zinc-950/40 flex gap-6">
-                            <input type="text" id="chat-input" placeholder="Broadcast to management team..." class="flex-1 p-6 rounded-3xl bg-zinc-950 border border-zinc-800 italic font-bold">
-                            <button onclick="sendChatMessage()" class="px-12 bg-emerald-500 text-black font-black rounded-3xl uppercase tracking-widest text-[10px] shadow-lg shadow-emerald-500/20 transition-all active:scale-95 italic">Send Message</button>
-                        </div>
-                    </div>
-                </section>
-
+                <section id="tab-actions" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Relay Dispatch</h2><div class="glass p-12 rounded-[3.5rem] max-w-2xl"><textarea id="webhook-msg" placeholder="Broadcast content..." class="w-full p-8 rounded-[2.5rem] h-64 bg-zinc-950 border border-zinc-800 text-sm"></textarea><button onclick="sendRelay()" class="w-full bg-emerald-500 text-black font-black py-6 rounded-3xl uppercase tracking-widest mt-6">Fire Signal</button></div></section>
+                <section id="tab-forms" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Form Architect</h2><div class="grid grid-cols-2 gap-10"><div class="glass p-10 rounded-[3rem] space-y-6"><input type="text" id="q-label" placeholder="FIELD NAME" class="w-full p-5 rounded-2xl bg-zinc-950 font-bold uppercase"><button onclick="addField()" class="w-full bg-zinc-800 text-white font-bold py-5 rounded-2xl uppercase">Append Component</button></div><div id="form-preview" class="glass p-12 rounded-[3.5rem] min-h-[500px] space-y-6"></div></div></section>
+                <section id="tab-chat" class="tab-content hidden"><h2 class="text-5xl font-black italic uppercase tracking-tighter mb-10">Intel Chat</h2><div class="glass rounded-[3.5rem] flex flex-col h-[600px]"><div id="chat-box" class="flex-1 overflow-y-auto p-12 space-y-8 bg-black/20"></div><div class="p-10 border-t border-zinc-800 bg-zinc-950/40 flex gap-6"><input type="text" id="chat-input" placeholder="Secure broadcast..." class="flex-1 p-6 rounded-3xl bg-zinc-950 border border-zinc-800 italic"><button onclick="sendChatMessage()" class="px-12 bg-emerald-500 text-black font-black rounded-3xl uppercase tracking-widest">Send</button></div></div></section>
             </div>
         </main>
     </div>
@@ -224,22 +125,12 @@
         const WEBHOOK = "https://discord.com/api/webhooks/1499459057935716532/dPuY2QOajbjp1FSGvx3eke-sF4GLeG-BdaxXlrYRi6-hqzp6uYtkgyZ86ojGkr-H002R";
         let CURRENT_USER = "hesgly";
 
-        // 1. SYSTEM INITIALIZATION (PERFECTLY CENTERED)
+        // 1. LOADER
         let progress = 0;
-        const loadMessages = {
-            10: "Syncing Assets...",
-            35: "Authenticating Melonly Nodes...",
-            60: "Calibrating Management Modules...",
-            85: "Securing Dispatch Gateways...",
-            98: "Ready For Access"
-        };
-
         const loadingTimer = setInterval(() => {
             progress++;
             document.getElementById('progress-fill').style.width = progress + "%";
             document.getElementById('percent-text').innerText = progress + "%";
-            if(loadMessages[progress]) document.getElementById('load-status').innerText = loadMessages[progress];
-
             if(progress >= 100) {
                 clearInterval(loadingTimer);
                 setTimeout(() => {
@@ -247,57 +138,52 @@
                     document.getElementById('login-screen').style.display = 'flex';
                 }, 800);
             }
-        }, 120); // 12-second load
+        }, 100); 
 
-        // 2. AUTHENTICATION
+        // 2. AUTH
         function attemptLogin() {
-            const user = document.getElementById('user-input').value;
-            const pass = document.getElementById('pass-input').value;
-            const error = document.getElementById('auth-error');
-
-            if(user.toLowerCase() === "hesgly" && pass === "W3xFn9q2Uz") {
-                CURRENT_USER = user;
-                document.getElementById('sidebar-username').innerText = user;
-                document.getElementById('header-username').innerText = user;
+            const u = document.getElementById('user-input').value;
+            const p = document.getElementById('pass-input').value;
+            if(u.toLowerCase() === "hesgly" && p === "W3xFn9q2Uz") {
+                CURRENT_USER = u;
+                document.getElementById('sidebar-username').innerText = u;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-ui').style.display = 'flex';
                 lucide.createIcons();
                 initSync();
-                addLog(`Authorized User: ${user}`, "AUTH");
+                addLog(`Authorization Verified: ${u}`, "AUTH");
             } else {
-                error.style.opacity = "1";
-                setTimeout(() => error.style.opacity = "0", 3000);
+                document.getElementById('auth-error').style.opacity = "1";
+                setTimeout(() => document.getElementById('auth-error').style.opacity = "0", 3000);
             }
         }
 
-        // 3. API STATUS ENGINE
+        // 3. ENHANCED API SYNC
         async function initSync() {
             const dot = document.getElementById('api-dot');
             const text = document.getElementById('api-text');
-            const metrics = document.getElementById('metrics-list');
+            addLog("Initiating Melonly Gateway Request...", "SYNC");
 
             try {
-                const res = await fetch('https://api.melonly.xyz/v1/guild', { headers: { 'Authorization': API_KEY } });
-                
-                if (res.status === 401) { updateStatus('warning', 'KEY REJECTED'); return; }
-                if (!res.ok) { updateStatus('offline', 'API DOWN'); return; }
+                // Testing the primary guild endpoint
+                const res = await fetch('https://api.melonly.xyz/v1/guild', {
+                    method: 'GET',
+                    headers: { 'Authorization': API_KEY }
+                });
+
+                if (res.status === 401) { updateStatus('offline', `API ERROR: 401 (INVALID KEY)`); addLog("Melonly rejected the API Key.", "REJECTED"); return; }
+                if (res.status === 404) { updateStatus('offline', `API ERROR: 404 (NOT FOUND)`); addLog("Server not found in Melonly system.", "ERROR"); return; }
+                if (!res.ok) { updateStatus('offline', `API ERROR: ${res.status}`); addLog(`Server responded with error ${res.status}`, "DOWN"); return; }
 
                 const data = await res.json();
-                updateStatus('online', 'CONNECTED & SYNCED');
-                document.getElementById('staff-count').innerText = data.staff.length;
-                
-                metrics.innerHTML = data.staff.map(s => `
-                    <tr class="hover:bg-emerald-500/5 transition-all">
-                        <td class="px-8 py-6 font-bold text-zinc-300 italic uppercase">${s.username}</td>
-                        <td class="px-8 py-6 text-zinc-500 font-mono text-xs">--</td>
-                        <td class="px-8 py-6 text-zinc-500 font-mono text-xs">--</td>
-                        <td class="px-8 py-6"><span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-black tracking-widest uppercase italic italic">Active</span></td>
-                    </tr>
-                `).join('');
-                addLog("Plus Data Established", "SYNC");
+                updateStatus('online', 'CONNECTED & LINKED');
+                document.getElementById('staff-count').innerText = data.staff ? data.staff.length : "0";
+                addLog(`Success: Synced ${data.staff ? data.staff.length : 0} Staff members.`, "SUCCESS");
+
             } catch (e) {
-                updateStatus('warning', 'OFFLINE (CORS)');
-                addLog("Local API Block Detected", "ERROR");
+                // If it fails here, it's usually the browser blocking it (CORS) or network failure
+                updateStatus('warning', 'OFFLINE (CORS/NETWORK)');
+                addLog("API Request was blocked by browser or network.", "BLOCKED");
             }
         }
 
@@ -309,13 +195,12 @@
             text.className = `font-black uppercase tracking-tighter text-sm italic ${type === 'online' ? 'text-emerald-500' : (type === 'offline' ? 'text-red-500' : 'text-orange-500')}`;
         }
 
-        // 4. CORE HUB LOGIC
+        // 4. CORE HUB FUNCTIONS
         function addLog(msg, type) {
             const container = document.getElementById('activity-logs');
-            if(container.innerHTML.includes('Establishing Secure')) container.innerHTML = '';
+            if(container.innerHTML.includes('Establishing secure')) container.innerHTML = '';
             const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const row = `<tr class="border-b border-zinc-800/20 hover:bg-white/[0.02] transition-colors fade-in"><td class="px-10 py-7 text-zinc-400 font-bold italic uppercase text-[10px] tracking-widest">${msg}</td><td class="px-10 py-7 text-emerald-500 font-black italic uppercase text-[9px] tracking-widest">${type}</td><td class="px-10 py-7 text-zinc-700 font-mono text-[10px]">${t}</td></tr>`;
-            container.insertAdjacentHTML('afterbegin', row);
+            container.insertAdjacentHTML('afterbegin', `<tr class="border-b border-zinc-800/20 hover:bg-white/[0.02] fade-in"><td class="px-10 py-7 text-zinc-400 font-bold italic uppercase text-[10px] tracking-widest">${msg}</td><td class="px-10 py-7 text-emerald-500 font-black italic uppercase text-[9px] tracking-widest">${type}</td><td class="px-10 py-7 text-zinc-700 font-mono text-[10px]">${t}</td></tr>`);
         }
 
         function showTab(name) {
@@ -328,15 +213,14 @@
             document.getElementById(`tab-${name}`).classList.remove('hidden');
             document.getElementById(`btn-${name}`).classList.add('active-tab');
             lucide.createIcons();
-            addLog(`Module Switched: ${name.toUpperCase()}`, "NAV");
+            addLog(`Module Access: ${name.toUpperCase()}`, "NAV");
         }
 
         function addField() {
             const l = document.getElementById('q-label').value;
             if(!l) return;
-            const html = `<div class="glass p-10 rounded-[2.5rem] border-l-4 border-emerald-500 slide-up"><p class="text-[10px] font-black uppercase text-emerald-500 italic mb-4 underline underline-offset-[10px] decoration-emerald-900">${l}</p><div class="h-12 bg-black/60 rounded-2xl border border-zinc-800"></div></div>`;
-            document.getElementById('form-preview').insertAdjacentHTML('beforeend', html);
-            addLog(`Modified Schema: ${l}`, "FORM");
+            document.getElementById('form-preview').insertAdjacentHTML('beforeend', `<div class="glass p-10 rounded-[2.5rem] border-l-4 border-emerald-500 slide-up"><p class="text-[10px] font-black uppercase text-emerald-500 italic mb-4 underline underline-offset-[10px] decoration-emerald-900">${l}</p><div class="h-12 bg-black/60 rounded-2xl border border-zinc-800"></div></div>`);
+            addLog(`Schema update: ${l}`, "FORM");
             document.getElementById('q-label').value = '';
         }
 
@@ -345,7 +229,6 @@
             const msg = input.value.trim();
             if(!msg) return;
             const chatBox = document.getElementById('chat-box');
-            if(chatBox.innerHTML.includes('Secured Management Line')) chatBox.innerHTML = '';
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             chatBox.insertAdjacentHTML('beforeend', `<div class="chat-msg flex gap-5 items-start slide-up"><div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-black text-emerald-500 italic">${CURRENT_USER.charAt(0).toUpperCase()}</div><div class="flex-1 bg-white/[0.04] p-6 rounded-3xl border border-white/[0.06]"><div class="flex justify-between mb-2"><span class="text-[10px] font-black text-emerald-500 uppercase italic tracking-widest">${CURRENT_USER}</span><span class="text-[9px] font-bold text-zinc-700">${time}</span></div><p class="text-sm text-zinc-300 font-medium">${msg}</p></div></div>`);
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -359,13 +242,8 @@
             try {
                 const r = await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [{ title: "NYCRP Dispatch Relay", description: m, color: 1064849, timestamp: new Date().toISOString() }] }) });
                 if(r.ok) { addLog("Relay Successful", "RELAY"); document.getElementById('webhook-msg').value = ''; }
-            } catch (e) { alert("Dispatch error."); }
+            } catch (e) { alert("Relay error."); }
         }
-
-        setInterval(() => {
-            const load = Math.floor(Math.random() * 6) + 1; 
-            document.getElementById('sys-load').innerText = `${load}%`;
-        }, 4000);
     </script>
 </body>
 </html>
